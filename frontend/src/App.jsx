@@ -153,7 +153,7 @@ function App() {
                         Cancel
                       </button>
                       <button type="submit" className="text-blue-800">
-                        Submit
+                        Save
                       </button>
                     </div>
                   </form>

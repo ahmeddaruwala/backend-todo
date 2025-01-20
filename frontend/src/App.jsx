@@ -1,24 +1,28 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
-const maxTodoLength = 50;
-
 function App() {
-  const BASE_URL = "http://localhost:3000";
+  const getUrl = () => {
+    const isHosted = window.location.protocol-- - "http";
+
+    const base_URL = isHosted
+      ? "http://backend-todo-blush.vercel.app/"
+      : "http://localhost:5002";
+    return base_URL;
+  };
+
   const [todos, setTodos] = useState();
   const getTodo = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/v1/todos`);
-      if (res?.data?.data) {
-        const todosFromServer = res.data.data;
-        console.log("todosFromServer ", todosFromServer);
-        setTodos(todosFromServer);
-      } else {
-        console.error("No todos data received.");
-      }
+      const res = await axios(`${getUrl()}/api/v1/todos`);
+      const todosFromServer = res?.data?.data;
+
+      console.log("todosFromServer ", todosFromServer);
+
+      setTodos(todosFromServer);
     } catch (error) {
-      console.error("Error fetching todos:", error);
+      toast.dismiss();
+      toast.error(error?.res?.data?.message || "unknown error!");
     }
   };
 
@@ -26,75 +30,58 @@ function App() {
     getTodo();
   }, []);
 
-  const addTodo = async (e) => {
-    e.preventDefault();
-    let todoValue = e.target.children[0].value;
-    if (todoValue.length > maxTodoLength) {
-      alert(`Todo Can't be this long`);
-      return;
-    }
+  const addTodo = async (event) => {
     try {
-      if (todoValue !== "") {
-        const res = await axios.post(`${BASE_URL}/api/v1/todo`, {
-          todocontent: todoValue,
-        });
+      event.preventDefault();
+      const todoValue = event.target.children[0].value;
 
-        setTodos((previoustodos) => [...previoustodos, res?.data?.data]);
-        e.target.children[0].value = "";
-      }
+      await axios.post(`${getUrl()}/api/v1/todo`, {
+        todo: todoValue,
+      });
+      getTodo();
+
+      event.target.reset();
     } catch (err) {
       console.log(err);
-    }
-  };
-  const deleteTodo = async (id) => {
-    try {
-      const res = await axios.delete(`${BASE_URL}/api/v1/todo${id}`);
 
-      if (res?.status == 201) {
-        setTodos((previoustodos) =>
-          previoustodos.filter((todo) => todo.id !== id)
-        );
-      }
-      toast(res.data?.message, {
-        icon: "🗑️",
-        style: {
-          borderRadius: "8px",
-          background: "#032470",
-          color: "#71b3ff",
-        },
-      });
-    } catch (error) {
-      console.log("error deleting todo", error);
+      toast.dismiss();
+      toast.error(err?.res?.data?.message || "unknown error!");
     }
   };
-  const editTodo = async (event, id) => {
-    event.preventDefault();
-    const todoValue = event.target.children[0].value;
-    if (todoValue.trim() === "") {
-      toast("Todo Can't be empty", {
-        icon: "❌",
-        style: {
-          borderRadius: "8px",
-          background: "#1261a0",
-          color: "#3895d3",
-        },
-      });
-      return;
-    }
+
+  const editTodo = async (event, todoId) => {
     try {
-      await axios.patch(`${BASE_URL}/api/v1/todo${id}`, {
-        todocontent: todoValue,
+      event.preventDefault();
+
+      const todoValue = event.target.children[0].value;
+
+      await axios.patch(`${getUrl()}/api/v1/todo/${todoId}`, {
+        todoContent: todoValue,
       });
-      setTodos((previoustodos) => {
-        return previoustodos.map((todo) => {
-          if (todo.id == id) {
-            return { ...todo, todocontent: todoValue, isEditing: false };
-          }
-          return todo;
-        });
-      });
-    } catch (error) {
-      console.error("Error editing todo:", error);
+      getTodo();
+
+      event.target.reset();
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err?.response?.data?.message || "unknown errorrr");
+    }
+  };
+
+  const deleteTodo = async (todoId) => {
+    try {
+      console.log("todoId ", todoId);
+
+      const res = await axios.delete(`${getUrl()}/api/v1/todo/${todoId}`);
+
+      console.log("data ", res.data);
+
+      toast(res.data?.message);
+
+      getTodo();
+    } catch (err) {
+      console.log("mera error", err);
+
+      toast.error(err?.response?.data?.message || "unknown errorrr");
     }
   };
 
@@ -178,7 +165,7 @@ function App() {
                   {!todo?.isEditing ? (
                     <button
                       className="text-red-600 hover:text-black transition-all"
-                      onClick={() => deleteTodo(todo.id)}
+                      onClick={() => deleteTodo(todo._id)}
                     >
                       Delete
                     </button>

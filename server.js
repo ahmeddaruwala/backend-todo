@@ -5,7 +5,7 @@ import './database.js'
 import { Todo } from "./models/model.js";
 
 const app = express();
-const port = process.env.PORT || 5002;
+const port = process.env.PORT || 3000;
 
 // 
 
@@ -21,7 +21,7 @@ app.get("/api/v1/todos", async (request, response) => {
       { ip: 0, __v: 0, updatedAt: 0 }
     ).sort({ _id: -1 })
 
-    const message = !todos.length ? "todos empty" : "ye lo sab todos";
+    const message = !todos.length ? "todos empty" : "todos available";
 
     response.send({ data: todos, message: message });
   } catch (err) {
@@ -37,7 +37,7 @@ app.post("/api/v1/todo", async (request, response) => {
 
   const result = await Todo.create(obj)
 
-  response.send({ message: "todo add hogya hy", data: result });
+  response.send({ message: "todo added seccessfully", data: result });
 });
 
 app.patch("/api/v1/todo/:id", async (request, response) => {

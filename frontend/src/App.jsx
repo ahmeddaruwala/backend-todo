@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 function App() {
   const getUrl = () => {
-    const isHosted = window.location.protocol-- - "http";
+    const isHosted = window.location.href.includes("http");
 
     const base_URL = isHosted
       ? "http://backend-todo-blush.vercel.app/"
-      : "http://localhost:5002";
+      : "http://localhost:3000";
     return base_URL;
   };
 
@@ -35,7 +35,7 @@ function App() {
       event.preventDefault();
       const todoValue = event.target.children[0].value;
 
-      await axios.post(`${getUrl()}/api/v1/todo`, {
+      await axios(`${getUrl()}/api/v1/todo`, {
         todo: todoValue,
       });
       getTodo();

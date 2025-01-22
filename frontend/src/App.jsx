@@ -6,7 +6,7 @@ function App() {
     const isHosted = window.location.href.includes("http");
 
     const base_URL = isHosted
-      ? "http://backend-todo-blush.vercel.app/"
+      ? "http://backend-todo-blush.vercel.app"
       : "http://localhost:3000";
     return base_URL;
   };

@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json()); 
 app.use(
-  cors({ origin: ["http://backend-todo-app.surge.sh/", "http://localhost:5173",] }),
+  cors({ origin: ["https://backend-todo.surge.sh/", "http://localhost:5173",] }),
 );
 
 app.get("/api/v1/todos", async (request, response) => {
